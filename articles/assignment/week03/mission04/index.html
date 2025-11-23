@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reqres 사용자 목록 미션 완료</title>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        h1 { margin-bottom: 30px; color: #333; }
+
+        #user-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .user-card:hover { transform: translateY(-8px); }
+
+        .avatar {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #6c5ce7;
+            margin-bottom: 15px;
+        }
+
+        .name { 
+            font-weight: bold; 
+            font-size: 1.3rem; 
+            color: #2d3436; 
+            margin-bottom: 5px;
+        }
+
+        .email { 
+            color: #636e72; 
+            font-size: 1rem; 
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Reqres 사용자 목록 (페이지 2)</h1>
+    <div id="user-container"></div>
+
+    <script>
+        // [3단계] 데이터 가져오기: async/await와 fetch 사용
+        async function fetchUsers() {
+            const container = document.getElementById('user-container');
+            // Swagger UI를 통해 생성된 URL 사용
+            const API_URL = 'https://reqres.in/api/users?page=2';
+
+            try {
+                // 401 에러 우회 옵션 (학교 환경에서 200 OK를 위한 필수 조건)
+                const response = await fetch(API_URL, {
+                    method: 'GET',
+                    credentials: 'omit' 
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} 에러 발생`);
+                }
+
+                const result = await response.json();
+                
+                // [4단계] 개별 속성 출력: data 배열 추출 및 화면에 렌더링
+                const users = result.data; 
+
+                users.forEach(user => {
+                    const card = document.createElement('div');
+                    card.className = 'user-card';
+
+                    // email, first_name, last_name, avatar 등 속성을 분리하여 출력
+                    card.innerHTML = `
+                        <img src="${user.avatar}" class="avatar" alt="${user.first_name} 아바타">
+                        <div class="name">${user.first_name} ${user.last_name}</div>
+                        <div class="email">${user.email}</div>
+                    `;
+
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error("데이터 로드 실패:", error);
+            }
+        }
+
+        fetchUsers();
+    </script>
+</body>
+</html>
